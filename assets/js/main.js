@@ -6,6 +6,8 @@ class CoachPersoApp {
     this.setupAnimations();
     this.setupInteractions();
     this.setupCounters();
+    this.setupMobileMenu();
+    this.setupResponsiveFeatures();
   }
 
   init() {
@@ -27,6 +29,137 @@ class CoachPersoApp {
     this.initScrollAnimations();
     this.initParallax();
     this.initTypewriter();
+  }
+
+  setupMobileMenu() {
+    // Créer le bouton hamburger s'il n'existe pas
+    const nav = document.querySelector(".nav-ultra");
+    if (nav && !document.querySelector(".nav-toggle")) {
+      const navContainer = nav.querySelector(".container-ultra");
+      const flexContainer = navContainer.querySelector(".flex");
+
+      // Créer le bouton hamburger
+      const toggleButton = document.createElement("button");
+      toggleButton.className = "nav-toggle";
+      toggleButton.innerHTML = "<span></span><span></span><span></span>";
+
+      // Ajouter une classe au menu existant
+      const navLinks = flexContainer.querySelector(".flex:last-child");
+      if (navLinks) {
+        navLinks.className += " nav-menu";
+      }
+
+      // Insérer le bouton hamburger
+      flexContainer.appendChild(toggleButton);
+
+      // Gestionnaire d'événements pour le menu mobile
+      toggleButton.addEventListener("click", () => {
+        toggleButton.classList.toggle("active");
+        if (navLinks) {
+          navLinks.classList.toggle("active");
+        }
+        document.body.classList.toggle("nav-open");
+      });
+
+      // Fermer le menu en cliquant sur un lien
+      const menuLinks = navLinks?.querySelectorAll(".nav-link");
+      menuLinks?.forEach((link) => {
+        link.addEventListener("click", () => {
+          toggleButton.classList.remove("active");
+          navLinks.classList.remove("active");
+          document.body.classList.remove("nav-open");
+        });
+      });
+
+      // Fermer le menu en cliquant à l'extérieur
+      document.addEventListener("click", (e) => {
+        if (!nav.contains(e.target) && navLinks?.classList.contains("active")) {
+          toggleButton.classList.remove("active");
+          navLinks.classList.remove("active");
+          document.body.classList.remove("nav-open");
+        }
+      });
+    }
+  }
+
+  setupResponsiveFeatures() {
+    // Gestion responsive de la navigation
+    const handleResize = () => {
+      const navToggle = document.querySelector(".nav-toggle");
+      const navMenu = document.querySelector(".nav-menu");
+
+      if (window.innerWidth > 768) {
+        // Réinitialiser pour desktop
+        navToggle?.classList.remove("active");
+        navMenu?.classList.remove("active");
+        document.body.classList.remove("nav-open");
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Optimisation du scroll pour mobile
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const nav = document.querySelector(".nav-ultra");
+          if (nav) {
+            if (window.scrollY > 100) {
+              nav.style.background = "rgba(10, 10, 10, 0.95)";
+            } else {
+              nav.style.background = "rgba(10, 10, 10, 0.9)";
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    // Touch gestures pour mobile
+    this.setupTouchGestures();
+  }
+
+  setupTouchGestures() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener(
+      "touchstart",
+      (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "touchend",
+      (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        // Swipe horizontal détecté
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+          const navMenu = document.querySelector(".nav-menu");
+          const navToggle = document.querySelector(".nav-toggle");
+
+          if (deltaX > 0 && navMenu?.classList.contains("active")) {
+            // Swipe right - fermer le menu
+            navToggle?.classList.remove("active");
+            navMenu.classList.remove("active");
+            document.body.classList.remove("nav-open");
+          }
+        }
+      },
+      { passive: true }
+    );
   }
 
   setupAnimations() {
