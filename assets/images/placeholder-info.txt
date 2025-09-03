@@ -1,0 +1,17 @@
+Images nécessaires pour le site moderne:
+
+1. coach-hero.jpg (1920x1080) - Image principale du coach
+2. personal-training.jpg (600x400) - Entraînement personnel
+3. nutrition.jpg (600x400) - Conseils nutrition
+4. motivation.jpg (600x400) - Suivi motivationnel
+5. video-poster.jpg (1280x720) - Poster de la vidéo de présentation
+6. gym-1.jpg (800x600) - Équipements cardio
+7. gym-2.jpg (800x600) - Zone musculation
+8. gym-3.jpg (800x600) - Espace wellness
+9. coach-action.jpg (800x600) - Coach en action
+
+Vidéos nécessaires:
+1. hero-bg.mp4 - Vidéo de fond (courte, en boucle)
+2. presentation.mp4 - Vidéo de présentation (2-3 minutes)
+
+Note: Ces images peuvent être remplacées par des images réelles ou des placeholders plus tard.
