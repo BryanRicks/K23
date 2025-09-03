@@ -41,45 +41,185 @@ class CoachPersoApp {
       // Créer le bouton hamburger
       const toggleButton = document.createElement("button");
       toggleButton.className = "nav-toggle";
+      toggleButton.setAttribute("aria-label", "Menu de navigation");
       toggleButton.innerHTML = "<span></span><span></span><span></span>";
 
-      // Ajouter une classe au menu existant
-      const navLinks = flexContainer.querySelector(".flex:last-child");
-      if (navLinks) {
-        navLinks.className += " nav-menu";
-      }
-
-      // Insérer le bouton hamburger
+      // Insérer le bouton dans le flex container
       flexContainer.appendChild(toggleButton);
 
-      // Gestionnaire d'événements pour le menu mobile
-      toggleButton.addEventListener("click", () => {
+      // Référence au menu de navigation (le dernier div avec les liens)
+      const navMenu = flexContainer.querySelector("div:nth-child(2)"); // Le div avec les liens
+
+      // Ajouter les styles CSS inline pour être sûr qu'ils s'appliquent
+      this.addInlineMenuStyles();
+
+      // Gérer les clics sur le bouton
+      toggleButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Toggle des classes
         toggleButton.classList.toggle("active");
-        if (navLinks) {
-          navLinks.classList.toggle("active");
-        }
+        navMenu.classList.toggle("nav-menu-active");
         document.body.classList.toggle("nav-open");
+
+        console.log(
+          "Menu toggle clicked",
+          navMenu.classList.contains("nav-menu-active")
+        );
       });
 
-      // Fermer le menu en cliquant sur un lien
-      const menuLinks = navLinks?.querySelectorAll(".nav-link");
-      menuLinks?.forEach((link) => {
+      // Fermer le menu quand on clique sur un lien
+      const navLinks = navMenu.querySelectorAll("a");
+      navLinks.forEach((link) => {
         link.addEventListener("click", () => {
           toggleButton.classList.remove("active");
-          navLinks.classList.remove("active");
+          navMenu.classList.remove("nav-menu-active");
           document.body.classList.remove("nav-open");
         });
       });
 
-      // Fermer le menu en cliquant à l'extérieur
-      document.addEventListener("click", (e) => {
-        if (!nav.contains(e.target) && navLinks?.classList.contains("active")) {
+      // Fermer le menu lors du redimensionnement
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 768) {
           toggleButton.classList.remove("active");
-          navLinks.classList.remove("active");
+          navMenu.classList.remove("nav-menu-active");
           document.body.classList.remove("nav-open");
         }
       });
     }
+  }
+
+  setupResponsiveFeatures() {
+    // Optimisation du scroll pour mobile
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const nav = document.querySelector(".nav-ultra");
+          if (nav) {
+            if (window.scrollY > 100) {
+              nav.style.background = "rgba(10, 10, 10, 0.95)";
+            } else {
+              nav.style.background = "rgba(10, 10, 10, 0.9)";
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    // Touch gestures pour mobile
+    this.setupTouchGestures();
+  }
+
+  addInlineMenuStyles() {
+    if (document.querySelector("#simple-mobile-menu-styles")) return;
+
+    const styles = document.createElement("style");
+    styles.id = "simple-mobile-menu-styles";
+    styles.textContent = `
+      /* Bouton hamburger simple */
+      .nav-toggle {
+        display: none;
+        flex-direction: column;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        gap: 4px;
+        z-index: 1001;
+        position: relative;
+      }
+
+      .nav-toggle span {
+        width: 25px;
+        height: 3px;
+        background: white;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+        display: block;
+      }
+
+      .nav-toggle.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+
+      .nav-toggle.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .nav-toggle.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+      }
+
+      /* Afficher le bouton sur mobile */
+      @media (max-width: 768px) {
+        .nav-toggle {
+          display: flex !important;
+        }
+
+        /* Cacher le menu par défaut et le transformer en overlay */
+        .nav-ultra .container-ultra .flex > div:nth-child(2) {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(10, 10, 10, 0.98);
+          backdrop-filter: blur(20px);
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 2rem;
+          transform: translateX(-100%);
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+          z-index: 1000;
+        }
+
+        .nav-ultra .container-ultra .flex > div:nth-child(2).nav-menu-active {
+          transform: translateX(0);
+          opacity: 1;
+          visibility: visible;
+        }
+
+        /* Style des liens dans le menu mobile */
+        .nav-ultra .container-ultra .flex > div:nth-child(2) .nav-link {
+          width: 100%;
+          max-width: 300px;
+          text-align: center;
+          padding: 1rem 2rem;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          margin: 0.5rem 0;
+          font-size: 1.1rem;
+          color: white;
+          text-decoration: none;
+        }
+
+        .nav-ultra .container-ultra .flex > div:nth-child(2) .btn-electric {
+          width: 100%;
+          max-width: 300px;
+          margin-top: 1rem;
+        }
+      }
+
+      /* Empêcher le scroll quand le menu est ouvert */
+      body.nav-open {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+      }
+    `;
+
+    document.head.appendChild(styles);
   }
 
   setupResponsiveFeatures() {
@@ -537,8 +677,9 @@ window.addEventListener("load", () => {
   });
 });
 
-// Service Worker pour la mise en cache (PWA)
-if ("serviceWorker" in navigator) {
+// Service Worker désactivé pour le développement local
+// Sera réactivé en production avec HTTPS
+if ("serviceWorker" in navigator && location.protocol === "https:") {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/sw.js")
